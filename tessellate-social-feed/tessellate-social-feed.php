@@ -6,18 +6,34 @@
 Plugin Name: Tessellate Social Feed
 Plugin URI: http://www.tessellate.co.uk/
 Description: Facebook and Twitter feed plugin.
-Version: 1.0
+Version: 1.2
 Author: Tessellate
 Author URI: http://www.tessellate.co.uk/
 */
 
-require 'plugin-update-checker/plugin-update-checker.php';
+add_action( 'admin_menu', 'socialfeed_add_admin_menu' );
+add_action( 'admin_init', 'socialfeed_settings_init' );
 
-$MyUpdateChecker = PucFactory::buildUpdateChecker(
-    'http://updates.tessellateonline.co.uk/plugins/tessellate-social-feed/info.json',
-    __FILE__,
-    'tessellate-social-feed'
-);
+function socialfeed_add_admin_menu() {
+
+	add_menu_page('Social Feed','Social Feed','read','tessellate-social-feed','socialfeed_options_page');
+
+	add_submenu_page( 'tessellate-social-feed', 'Social Feed', 'Social Feed', 'manage_options', 'tessellate-social-feed', 'socialfeed_options_page' );
+
+}
+
+require_once( 'class-wp-license-manager-client.php' );
+
+if ( is_admin() ) {
+    $license_manager = new Wp_License_Manager_Client(
+        'tessellate-social-feed',
+        'Tessellate Social Feed',
+        'tessellate-social-feed',
+        'https://dev.tessellate.co.uk/api/license-manager/v1',
+        'plugin',
+        __FILE__
+    );
+}
 
 function tsf_get_twitter_feed() {
 
@@ -120,15 +136,6 @@ function tsf_get_facebook_feed() {
 	endif;
 
 	return $return;
-}
-
-add_action( 'admin_menu', 'socialfeed_add_admin_menu' );
-add_action( 'admin_init', 'socialfeed_settings_init' );
-
-function socialfeed_add_admin_menu() {
-
-	add_submenu_page( 'options-general.php', 'Social Feed', 'Social Feed', 'manage_options', 'socialfeed', 'socialfeed_options_page' );
-
 }
 
 function socialfeed_settings_init() {
